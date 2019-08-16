@@ -1,16 +1,56 @@
 //
-var G_log;
-var G_sensor;
+var log;
+var host = "ws://localhost:5331/echo";
+var socket;
+var cnt = 0;
+//
+$(document).ready(function ()
+{
+    function connect() 
+    {
+        socket = new WebSocket(host);
+        log = document.getElementById("krlog");
+        log.innerHTML += "socket created = " + socket.readyState + "<br/>";
+        window.W_fr = 0;
 
-$(document).ready(function() 
-{ 
-    G_log = document.getElementById("dataLog");
-    G_sensor = new Sensor();
+        socket.onopen = function() {
+            log.innerHTML += "socket opened = " + socket.readyState + "<br/>";
+            socket.send("hello server");
+        }
+        socket.onmessage = function(event) {
+            cnt++;
+            var msg = new String(event.data);
+            log.innerHTML  = "RX " + cnt + " = " + msg + "<br/>";
+
+            var str = msg.split('V');
+            if (str[1].length != 9) {
+                return;
+            }
+            var val = str[1].split('D');
+            if (isNaN(val[0]) || isNaN(val[1])) {
+                return;
+            }
+            window.W_speed = parseInt(val[0]);
+            window.W_dir = parseInt(val[1]);
+
+            log.innerHTML += "speed: " + window.W_speed + "<br/>";
+            log.innerHTML += "dir: " + window.W_dir + "<br/>";
+            log.innerHTML += "fr: " + window.W_fr + "<br/>";
+        }
+        socket.onclose = function() {
+            log.innerHTML += "socket closed = " + socket.readyState + "<br/>";
+            socket.close();
+        }
+        socket.onerror = function() {
+            log.innerHTML += "socket error = " + socket.readyState + "<br/>";
+        }
+    }
+    $('#krlog').click(function() { connect(); });
 });
 
 $(window).load(function()
 {
-    G_sensor.connect();
+    $('#krlog').click();
 });
 //
 //
@@ -168,8 +208,18 @@ var game = (function()
             } else {
                 player.speed -= player.deceleration;
             }
-            //---- kong ----
 
+            //---- kong ----
+            window.W_fr++;
+            if (window.W_speed > 100) { // up
+                player.speed += player.acceleration;
+            } else if (window.W_speed <= 100) { // down
+                player.speed -= player.deceleration;
+                //player.speed -= player.breaking;
+            } else {
+                player.speed -= player.breaking;
+                //player.speed -= player.deceleration;
+            }
             //----
         }
         player.speed = Math.max(player.speed, 0); // cannot go in reverse
@@ -201,8 +251,33 @@ var game = (function()
                 y:190
             };
         }
-        //---- kong ----
 
+        //---- kong ----
+        if (window.W_dir > 15) { // left
+            if (player.speed > 0) {
+                player.posx -= player.turning;
+            }
+            var carSprite = {
+                a: car_4,
+                x: 117,
+                y: 190
+            };
+        } else if (window.W_dir < 13) { // 39: right
+            if (player.speed > 0) {
+                player.posx += player.turning;
+            }
+            var carSprite = {
+                a: car_8,
+                x: 125,
+                y: 190
+            };
+        } else {
+            var carSprite = {
+                a: car, 
+                x:125, 
+                y:190
+            };
+        }
         //----
 
         drawBackground(-player.posx);
