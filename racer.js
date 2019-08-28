@@ -206,7 +206,7 @@ var game = (function()
             } else if (keys[40]) { // 40: down
                 player.speed -= player.breaking;
             } else {
-                player.speed -= player.deceleration;
+                //player.speed -= player.deceleration;
             }
 
             //---- kong ----
@@ -253,7 +253,7 @@ var game = (function()
         }
 
         //---- kong ----
-        if (window.W_dir > 15) { // left
+        if (window.W_dir > 20) { // left
             if (player.speed > 0) {
                 player.posx -= player.turning;
             }
@@ -262,7 +262,7 @@ var game = (function()
                 x: 117,
                 y: 190
             };
-        } else if (window.W_dir < 13) { // 39: right
+        } else if (window.W_dir < 18) { // 39: right
             if (player.speed > 0) {
                 player.posx += player.turning;
             }
