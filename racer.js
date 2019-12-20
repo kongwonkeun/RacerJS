@@ -253,7 +253,7 @@ var game = (function()
         }
 
         //---- kong ----
-        if (window.W_dir > 20) { // left
+        if (window.W_dir < 14) { // left
             if (player.speed > 0) {
                 player.posx -= player.turning;
             }
@@ -262,7 +262,7 @@ var game = (function()
                 x: 117,
                 y: 190
             };
-        } else if (window.W_dir < 18) { // 39: right
+        } else if (window.W_dir > 16) { // 39: right
             if (player.speed > 0) {
                 player.posx += player.turning;
             }
